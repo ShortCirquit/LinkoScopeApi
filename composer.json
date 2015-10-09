@@ -2,7 +2,7 @@
     "name": "shortcirquit/linkoscope-api",
     "description": "Wraps WordPressApi to provide the LinkoScope data layer",
     "type": "library",
-    "keywords": ["wordpress","api","wordpress.com","wp-api", "linkoscope],
+    "keywords": ["wordpress","api","wordpress.com","wp-api", "linkoscope"],
     "license": "MIT",
     "authors": [
         {
