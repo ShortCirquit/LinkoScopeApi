@@ -83,12 +83,29 @@ class ComLinkoScope
 
     public function likeComment($id, $userId = null)
     {
-        return $this->api->likeComment($id);
+        $this->api->likeComment($id);
+        $c = $this->getComment($id);
+        return $this->updateComment($c);
     }
 
     public function unlikeComment($id, $userId = null)
     {
-        return $this->api->unlikeComment($id);
+        $this->api->unlikeComment($id);
+        $c = $this->getComment($id);
+        return $this->updateComment($c);
+    }
+
+    private function getComment($id){
+        $this->api->adminToken = true;
+        $c = $this->api->getComment($id);
+        return $this->apiToComment($c);
+    }
+
+    private function updateComment(Comment $c){
+        $this->api->adminToken = true;
+        $c->score = strtotime($c->date) + $this->likeFactor * $c->votes;
+        $this->updateToPost($c);
+        return $this->api->updateComment($c->id, $this->commentToApi($c));
     }
 
     public function getTypes(){return [];}
@@ -145,19 +162,22 @@ class ComLinkoScope
             'title' => $link->title,
             'content' => $link->url,
             'status' => 'publish',
-            'author' => $link->authorId,
         ];
+
+        if ($link->authorId != null)
+            $val['author'] = $link->authorId;
 
         // If there is no created metadata, add it and set the date field with it's initial 'score'
         $created = $this->getMetaKeyValue($val, 'linkoscope_created');
         if (null == $created){
-            $val = $this->setMetaKey($val, 'linkoscope_created', time());
+            $created = time();
+            $val = $this->setMetaKey($val, 'linkoscope_created', $created);
             $link->votes = 0;
-        } else {
-            $time = date(DATE_ATOM, $created);
         }
 
-        $val['date'] = date(DATE_ATOM, $time - $this->dateOffset + $link->votes * $this->likeFactor);
+        $score = $created  + $link->votes * $this->likeFactor;
+        $val = $this->setMetaKey($val, 'linkoscope_score', $score);
+        $val['date'] = date(DATE_ATOM, $score - $this->dateOffset);
         return $val;
     }
 
@@ -169,23 +189,48 @@ class ComLinkoScope
         return $result;
     }
 
+    private $postCache = null;
+
     private function apiToComment($c) {
-        return new Comment([
+        $comment = new Comment([
             'id' => $c['ID'],
-            'date' => $c['date'],
+            'date' => $this->getMetaKeyValue($c, 'linkoscope_created') ?: $c['date'],
             'postId' => $c['post']['ID'],
             'content' => $c['content'],
             'authorId' => $c['author']['ID'],
             'authorName' => $c['author']['name'],
             'votes' => $c['like_count'],
+            'score' => $this->getMetaKeyValue($c, 'linkoscope_score') ?: strtotime($c['date']),
         ]);
+
+        $this->updateFromPostCache($comment, $c);
+        return $comment;
+    }
+
+    // fetch associated post if it hasn't been fetched before, or if the incorrect post is cached.
+    private function updateFromPostCache(Comment $comment, $c){
+        if ($comment->postId == null) return;
+        if ($this->postCache == null || $this->postCache['ID'] != $comment->postId)
+            $this->postCache = $this->api->getPost($comment->postId);
+
+        $comment->date = $this->getMetaKeyValue($this->postCache, "linkoscope_created_$comment->id") ?: $c['date'];
+        $comment->score = $this->getMetaKeyValue($this->postCache, "linkoscope_score_$comment->id") ?: strtotime($c['date']);
     }
 
     private function commentToApi(Comment $comment){
-        return [
+        $data = [
             'content' => $comment->content,
             'date' => $comment->date,
         ];
+        return $data;
+    }
+
+    private function updateToPost(Comment $comment){
+        $post = $this->api->getPost($comment->postId);
+        $update = ['metadata' => $post['metadata']];
+        $update = $this->setMetaKey($update, "linkoscope_created_$comment->id", $comment->date);
+        $update = $this->setMetaKey($update, "linkoscope_score_$comment->id", $comment->score);
+        $this->api->updatePost($post['ID'], $update);
     }
 
     private function getMetaKeyValue($result, $key){
