@@ -92,19 +92,21 @@ class ComLinkoScope
     {
         $this->api->unlikeComment($id);
         $c = $this->getComment($id);
+        $this->api->useAdminToken = true;
         return $this->updateComment($c);
     }
 
     private function getComment($id){
-        $this->api->adminToken = true;
+        $this->api->useAdminToken = true;
         $c = $this->api->getComment($id);
         return $this->apiToComment($c);
     }
 
     private function updateComment(Comment $c){
-        $this->api->adminToken = true;
+        $this->api->useAdminToken = true;
         $c->score = strtotime($c->date) + $this->likeFactor * $c->votes;
         $this->updateToPost($c);
+        $this->api->useAdminToken = true;
         return $this->api->updateComment($c->id, $this->commentToApi($c));
     }
 
@@ -211,7 +213,10 @@ class ComLinkoScope
     private function updateFromPostCache(Comment $comment, $c){
         if ($comment->postId == null) return;
         if ($this->postCache == null || $this->postCache['ID'] != $comment->postId)
+        {
+            $this->api->useAdminToken = true;
             $this->postCache = $this->api->getPost($comment->postId);
+        }
 
         $comment->date = $this->getMetaKeyValue($this->postCache, "linkoscope_created_$comment->id") ?: $c['date'];
         $comment->score = $this->getMetaKeyValue($this->postCache, "linkoscope_score_$comment->id") ?: strtotime($c['date']);
@@ -230,6 +235,7 @@ class ComLinkoScope
         $update = ['metadata' => $post['metadata']];
         $update = $this->setMetaKey($update, "linkoscope_created_$comment->id", $comment->date);
         $update = $this->setMetaKey($update, "linkoscope_score_$comment->id", $comment->score);
+        $this->api->useAdminToken = true;
         $this->api->updatePost($post['ID'], $update);
     }
 
