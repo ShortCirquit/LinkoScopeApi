@@ -16,8 +16,8 @@ class ComLinkoScope
 {
     public $type = 'com';
     private $api;
-    private $likeFactor = 24*60*60;
-    private $dateOffset = 60 * 60 * 24 * 365 * 100;
+    private $likeFactor = 86400;
+    private $dateOffset = 3153600000;
 
     public function __construct(ComWpApi $api){
         $this->api = $api;
