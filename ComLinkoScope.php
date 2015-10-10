@@ -220,7 +220,7 @@ class ComLinkoScope
     private function commentToApi(Comment $comment){
         $data = [
             'content' => $comment->content,
-            'date' => $comment->date,
+            'date' => date(DATE_ATOM, $comment->score - $this->dateOffset),
         ];
         return $data;
     }
