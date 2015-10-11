@@ -2,18 +2,16 @@
 
 namespace ShortCirquit\LinkoScopeApi\Models;
 
-use yii\base\Object;
-
-class Link extends Object
+class Link extends BaseModel
 {
-	public $id;
+    public $id;
     public $date;
-	public $authorId;
-	public $authorName;
-	public $title;
-	public $url;
-	public $votes;
-	public $voteList;
-	public $comments;
-	public $score;
+    public $authorId;
+    public $authorName;
+    public $title;
+    public $url;
+    public $votes;
+    public $voteList;
+    public $comments;
+    public $score;
 }

@@ -8,10 +8,7 @@
 
 namespace ShortCirquit\LinkoScopeApi\Models;
 
-
-use yii\base\Object;
-
-class Comment extends Object
+class Comment extends BaseModel
 {
     public $id;
     public $date;
