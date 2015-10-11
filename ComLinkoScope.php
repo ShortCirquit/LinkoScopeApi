@@ -14,17 +14,25 @@ use ShortCirquit\LinkoScopeApi\Models\Comment;
 
 class ComLinkoScope
 {
-    public $type = 'com';
     private $api;
+    private $adminApi;
     private $likeFactor = 86400;
     private $dateOffset = 3153600000;
 
-    public function __construct(ComWpApi $api){
-        $this->api = $api;
+    public function __construct(Array $cfg){
+        $this->api = new ComWpApi($cfg);
+        if (isset($cfg['adminToken'])){
+            $cfg['accessToken'] = $cfg['adminToken'];
+            $this->adminApi = new ComWpApi($cfg);
+        } else {
+            $this->adminApi = $this->api;
+        }
     }
 
     public function getConfig(){
-        return $this->api->getConfig();
+        return $this->api->getConfig() + [
+            'adminToken' => $this->adminApi->token,
+        ];
     }
 
     public function authorize(){
@@ -37,8 +45,7 @@ class ComLinkoScope
     }
 
     public function getLinks(){
-        $this->api->useAdminToken = true;
-        $result = $this->api->listPosts();
+        $result = $this->adminApi->listPosts();
         if (!isset($result['posts']))
             return [];
 
@@ -46,38 +53,33 @@ class ComLinkoScope
     }
 
     public function getLink($id){
-        $this->api->useAdminToken = true;
-        $result = $this->api->getPost($id);
+        $result = $this->adminApi->getPost($id);
         return $this->apiToLink($result);
     }
 
     public function addLink(Link $link){
-        return $this->api->addPost($this->linkToApi($link));
+        return $this->adminApi->addPost($this->linkToApi($link));
     }
 
     public function updateLink(Link $link){
-        return $this->api->updatePost($link->id, $this->linkToApi($link));
+        return $this->adminApi->updatePost($link->id, $this->linkToApi($link));
     }
 
     public function deleteLink($id){
-        return $this->api->deletePost($id);
+        return $this->adminApi->deletePost($id);
     }
 
     public function likeLink($id, $userId = null)
     {
         $this->api->likePost($id);
-        $this->api->useAdminToken = true;
         $link = $this->getLink($id);
-        $this->api->useAdminToken = true;
         return $this->updateLink($link);
     }
 
     public function unlikeLink($id, $userId = null)
     {
         $this->api->unlikePost($id);
-        $this->api->useAdminToken = true;
         $link = $this->getLink($id);
-        $this->api->useAdminToken = true;
         return $this->updateLink($link);
     }
 
@@ -92,47 +94,42 @@ class ComLinkoScope
     {
         $this->api->unlikeComment($id);
         $c = $this->getComment($id);
-        $this->api->useAdminToken = true;
         return $this->updateComment($c);
     }
 
     private function getComment($id){
-        $this->api->useAdminToken = true;
-        $c = $this->api->getComment($id);
+        $c = $this->adminApi->getComment($id);
         return $this->apiToComment($c);
     }
 
     private function updateComment(Comment $c){
-        $this->api->useAdminToken = true;
         $c->score = strtotime($c->date) + $this->likeFactor * $c->votes;
         $this->updateToPost($c);
-        $this->api->useAdminToken = true;
-        return $this->api->updateComment($c->id, $this->commentToApi($c));
+        return $this->adminApi->updateComment($c->id, $this->commentToApi($c));
     }
-
-    public function getTypes(){return [];}
 
     public function getAccount(){
         return $this->api->getSelf();
     }
 
     public function getComments($postId){
-        $this->api->useAdminToken = true;
-        $result = $this->api->listComments($postId);
+        $result = $this->adminApi->listComments($postId);
         if (!isset($result['comments']))
             return [];
         return $this->apiToComments($result['comments']);
     }
 
     public function addComment(Comment $comment) {
-        return $this->api->addComment($comment->postId, [
-            'content' => $comment->content,
-        ]);
+        $comment->score = time();
+        $comment->date = date(DATE_ATOM, $comment->score);
+        $c = $this->api->addComment($comment->postId, $this->commentToApi($comment));
+        $comment = $this->getComment($c['ID']);
+        $this->updateComment($comment);
     }
 
     public function deleteComment($id)
     {
-        return $this->api->deleteComment($id);
+        return $this->adminApi->deleteComment($id);
     }
 
     private function apiToLinks($posts)
@@ -164,10 +161,8 @@ class ComLinkoScope
             'title' => $link->title,
             'content' => $link->url,
             'status' => 'publish',
+            'author' => $link->authorId,
         ];
-
-        if ($link->authorId != null)
-            $val['author'] = $link->authorId;
 
         // If there is no created metadata, add it and set the date field with it's initial 'score'
         $created = $this->getMetaKeyValue($val, 'linkoscope_created');
@@ -212,10 +207,8 @@ class ComLinkoScope
     // fetch associated post if it hasn't been fetched before, or if the incorrect post is cached.
     private function updateFromPostCache(Comment $comment, $c){
         if ($comment->postId == null) return;
-        if ($this->postCache == null || $this->postCache['ID'] != $comment->postId)
-        {
-            $this->api->useAdminToken = true;
-            $this->postCache = $this->api->getPost($comment->postId);
+        if ($this->postCache == null || $this->postCache['ID'] != $comment->postId) {
+            $this->postCache = $this->adminApi->getPost($comment->postId);
         }
 
         $comment->date = $this->getMetaKeyValue($this->postCache, "linkoscope_created_$comment->id") ?: $c['date'];
@@ -226,17 +219,18 @@ class ComLinkoScope
         $data = [
             'content' => $comment->content,
             'date' => date(DATE_ATOM, $comment->score - $this->dateOffset),
+            'status' => 'approved',
+            'author' => $comment->authorId,
         ];
         return $data;
     }
 
     private function updateToPost(Comment $comment){
-        $post = $this->api->getPost($comment->postId);
+        $post = $this->adminApi->getPost($comment->postId);
         $update = ['metadata' => $post['metadata']];
         $update = $this->setMetaKey($update, "linkoscope_created_$comment->id", $comment->date);
         $update = $this->setMetaKey($update, "linkoscope_score_$comment->id", $comment->score);
-        $this->api->useAdminToken = true;
-        $this->api->updatePost($post['ID'], $update);
+        $this->adminApi->updatePost($post['ID'], $update);
     }
 
     private function getMetaKeyValue($result, $key){

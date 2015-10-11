@@ -15,14 +15,13 @@ use ShortCirquit\LinkoScopeApi\Models\Comment;
 
 class OrgLinkoScope
 {
-    public $type = 'org';
     private $linkEndpoint = 'linkolink';
     private $api;
     private $linkVoteMultiplier = 86400; //one day
     private $commentVoteMultiplier = 86400;
 
-    public function __construct(OrgWpApi $api) {
-        $this->api = $api;
+    public function __construct(Array $cfg) {
+        $this->api = new OrgWpApi($cfg);
     }
 
     public function getConfig()
