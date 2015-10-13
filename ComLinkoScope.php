@@ -22,7 +22,7 @@ class ComLinkoScope
     public function __construct(Array $cfg){
         $this->api = new ComWpApi($cfg);
         if (isset($cfg['adminToken'])){
-            $cfg['accessToken'] = $cfg['adminToken'];
+            $cfg['token'] = $cfg['adminToken'];
             $this->adminApi = new ComWpApi($cfg);
         } else {
             $this->adminApi = $this->api;
