@@ -45,7 +45,7 @@ class ComLinkoScope
     }
 
     public function getLinks(){
-        $result = $this->adminApi->listPosts();
+        $result = $this->adminApi->listPosts(['number' => 100]);
         if (!isset($result['posts']))
             return [];
 
