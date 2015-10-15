@@ -186,13 +186,11 @@ class ComLinkoScope
     private function apiToComment($c) {
         $comment = new Comment([
             'id' => $c['ID'],
-            'date' => date(DATE_ATOM, $this->getMetaKeyValue($c, 'linkoscope_created') ?: $c['date']),
             'postId' => $c['post']['ID'],
             'content' => $c['content'],
             'authorId' => $c['author']['ID'],
             'authorName' => $c['author']['name'],
             'votes' => $c['like_count'],
-            'score' => $this->getMetaKeyValue($c, 'linkoscope_score') ?: strtotime($c['date']),
         ]);
 
         $this->updateFromPostCache($comment, $c);
