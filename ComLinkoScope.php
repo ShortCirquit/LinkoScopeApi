@@ -116,7 +116,7 @@ class ComLinkoScope
     }
 
     public function getComments($postId){
-        $result = $this->adminApi->listComments($postId);
+        $result = $this->adminApi->listComments($postId, ['number' => 100]);
         if (!isset($result['comments']))
             return [];
         return $this->apiToComments($result['comments']);
