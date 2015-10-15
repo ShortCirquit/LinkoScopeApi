@@ -58,10 +58,13 @@ class ComLinkoScope
     }
 
     public function addLink(Link $link){
+        $link->score = time();
+        $link->date = date(DATE_ATOM, $link->score);
         return $this->adminApi->addPost($this->linkToApi($link));
     }
 
     public function updateLink(Link $link){
+        $link->score = strtotime($link->date) + $this->likeFactor * $link->votes;
         return $this->adminApi->updatePost($link->id, $this->linkToApi($link));
     }
 
@@ -147,7 +150,7 @@ class ComLinkoScope
             'id' => $p['ID'],
             'authorId' => $p['author']['ID'],
             'authorName' => $p['author']['name'],
-            'date' => $p['modified'],
+            'date' => date(DATE_ATOM, $this->getMetaKeyValue($p, 'linkoscope_created')),
             'title' => $p['title'],
             'url' => $p['content'],
             'votes' => $p['like_count'],
@@ -164,17 +167,9 @@ class ComLinkoScope
             'author' => $link->authorId,
         ];
 
-        // If there is no created metadata, add it and set the date field with it's initial 'score'
-        $created = $this->getMetaKeyValue($val, 'linkoscope_created');
-        if (null == $created){
-            $created = time();
-            $val = $this->setMetaKey($val, 'linkoscope_created', $created);
-            $link->votes = 0;
-        }
-
-        $score = $created  + $link->votes * $this->likeFactor;
-        $val = $this->setMetaKey($val, 'linkoscope_score', $score);
-        $val['date'] = date(DATE_ATOM, $score - $this->dateOffset);
+        $val = $this->setMetaKey($val, 'linkoscope_created', strtotime($link->date));
+        $val = $this->setMetaKey($val, 'linkoscope_score', $link->score);
+        $val['date'] = date(DATE_ATOM, $link->score - $this->dateOffset);
         return $val;
     }
 
@@ -191,7 +186,7 @@ class ComLinkoScope
     private function apiToComment($c) {
         $comment = new Comment([
             'id' => $c['ID'],
-            'date' => $this->getMetaKeyValue($c, 'linkoscope_created') ?: $c['date'],
+            'date' => date(DATE_ATOM, $this->getMetaKeyValue($c, 'linkoscope_created') ?: $c['date']),
             'postId' => $c['post']['ID'],
             'content' => $c['content'],
             'authorId' => $c['author']['ID'],
