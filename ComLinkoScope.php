@@ -193,6 +193,7 @@ class ComLinkoScope implements iLinkoScope
             'authorId' => $c['author']['ID'],
             'authorName' => $c['author']['name'],
             'votes' => $c['like_count'],
+            'hasVoted' => $c['i_like'],
         ]);
 
         $this->updateFromPostCache($comment, $c);

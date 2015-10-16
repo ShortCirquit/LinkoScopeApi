@@ -208,13 +208,13 @@ class OrgLinkoScope implements iLinkoScope
 
     private function apiToComment($c){
         $likeList = empty($c['linkoscope_likes']) ? [] : explode(';', $c['linkoscope_likes']);
-        $likes = count($likeList);
         return new Comment([
             'id' => $c['id'],
             'date' => $c['date'],
             'postId' => $c['post'],
             'content' => $c['content']['raw'],
-            'votes' => $likes,
+            'votes' => count($likeList),
+            'hasVoted' => in_array($this->userId, $likeList),
             'likeList' => $likeList,
             'score' => $c['karma'],
             'authorId' => $c['author'],
