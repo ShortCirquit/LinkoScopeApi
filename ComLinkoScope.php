@@ -12,7 +12,7 @@ use ShortCirquit\WordPressApi\ComWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
 
-class ComLinkoScope
+class ComLinkoScope implements iLinkoScope
 {
     private $api;
     private $adminApi;

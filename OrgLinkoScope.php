@@ -13,7 +13,7 @@ use ShortCirquit\WordPressApi\OrgWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
 
-class OrgLinkoScope
+class OrgLinkoScope implements iLinkoScope
 {
     private $linkEndpoint = 'linkolink';
     private $api;
@@ -72,14 +72,14 @@ class OrgLinkoScope
         return $this->apiToLink($result);
     }
 
-    public function likeLink($id, $userId)
+    public function likeLink($id, $userId = null)
     {
         $link = $this->getLink($id);
         $link->voteList[] = $userId;
         return $this->updateLink($link);
     }
 
-    public function unlikeLink($id, $userId)
+    public function unlikeLink($id, $userId = null)
     {
         $link = $this->getLink($id);
         $link->voteList = array_diff($link->voteList, [$userId]);
@@ -135,14 +135,14 @@ class OrgLinkoScope
         return $this->api->updateComment($comment->id, $body);
     }
 
-    public function likeComment($id, $userId)
+    public function likeComment($id, $userId = null)
     {
         $comment = $this->getComment($id);
         $comment->likeList[] = $userId;
         return $this->updateComment($comment);
     }
 
-    public function unlikeComment($id, $userId)
+    public function unlikeComment($id, $userId = null)
     {
         $comment = $this->getComment($id);
         $comment->likeList = array_diff_key($comment->likeList, [$userId]);
