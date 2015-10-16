@@ -18,5 +18,6 @@ class Comment extends BaseModel
     public $content;
     public $score;
     public $votes;
+    public $hasVoted;
     public $likeList;
 }

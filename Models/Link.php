@@ -11,6 +11,7 @@ class Link extends BaseModel
     public $title;
     public $url;
     public $votes;
+    public $hasVoted;
     public $voteList;
     public $comments;
     public $score;
