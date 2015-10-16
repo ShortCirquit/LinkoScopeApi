@@ -76,14 +76,14 @@ class OrgLinkoScope implements iLinkoScope
     {
         $link = $this->getLink($id);
         $link->voteList[] = $userId;
-        return $this->updateLink($link);
+        return $this->updateLink($link)->votes;
     }
 
     public function unlikeLink($id, $userId = null)
     {
         $link = $this->getLink($id);
         $link->voteList = array_diff($link->voteList, [$userId]);
-        return $this->updateLink($link);
+        return $this->updateLink($link)->votes;
     }
 
     public function deleteLink($id)
@@ -132,21 +132,23 @@ class OrgLinkoScope implements iLinkoScope
             $this->commentVoteMultiplier * $comment->votes;
         if ($oldScore == $comment->score) $comment->score++; // API throws an error if nothing changes.
         $body = $this->commentToApi($comment);
-        return $this->api->updateComment($comment->id, $body);
+        $c = $this->api->updateComment($comment->id, $body);
+        return $this->apiToComment($c);
     }
 
     public function likeComment($id, $userId = null)
     {
         $comment = $this->getComment($id);
         $comment->likeList[] = $userId;
-        return $this->updateComment($comment);
+        return $this->updateComment($comment)->votes;
     }
 
     public function unlikeComment($id, $userId = null)
     {
         $comment = $this->getComment($id);
         $comment->likeList = array_diff_key($comment->likeList, [$userId]);
-        return $this->updateComment($comment);
+        $comment = $this->updateComment($comment);
+        return $this->updateComment($comment)->votes;
     }
 
     public function deleteComment($id)

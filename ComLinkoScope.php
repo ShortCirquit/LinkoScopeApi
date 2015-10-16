@@ -74,30 +74,26 @@ class ComLinkoScope implements iLinkoScope
 
     public function likeLink($id, $userId = null)
     {
-        $this->api->likePost($id);
-        $link = $this->getLink($id);
-        return $this->updateLink($link);
+        $result = $this->api->likePost($id);
+        return $result['like_count'];
     }
 
     public function unlikeLink($id, $userId = null)
     {
-        $this->api->unlikePost($id);
-        $link = $this->getLink($id);
-        return $this->updateLink($link);
+        $result = $this->api->unlikePost($id);
+        return $result['like_count'];
     }
 
     public function likeComment($id, $userId = null)
     {
-        $this->api->likeComment($id);
-        $c = $this->getComment($id);
-        return $this->updateComment($c);
+        $result = $this->api->likeComment($id);
+        return $result['like_count'];
     }
 
     public function unlikeComment($id, $userId = null)
     {
-        $this->api->unlikeComment($id);
-        $c = $this->getComment($id);
-        return $this->updateComment($c);
+        $result = $this->api->unlikeComment($id);
+        return $result['like_count'];
     }
 
     private function getComment($id){
