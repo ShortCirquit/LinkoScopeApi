@@ -9,6 +9,7 @@
 namespace ShortCirquit\LinkoScopeApi;
 
 
+use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 use ShortCirquit\WordPressApi\OrgWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
@@ -98,7 +99,11 @@ class OrgLinkoScope implements iLinkoScope
 
     public function getAccount()
     {
-        return $this->api->getSelf();
+        $user = $this->api->getSelf();
+        return new UserProfile([
+            'id' => $user['body']['id'],
+            'username' => $user['body']['name'],
+        ]);
     }
 
     public function getComments($postId)

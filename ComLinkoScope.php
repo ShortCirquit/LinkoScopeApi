@@ -8,6 +8,7 @@
 
 namespace ShortCirquit\LinkoScopeApi;
 
+use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 use ShortCirquit\WordPressApi\ComWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
@@ -108,7 +109,11 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function getAccount(){
-        return $this->api->getSelf();
+        $user = $this->api->getSelf();
+        return new UserProfile([
+            'id' => $user['ID'],
+            'username' => $user['display_name'],
+        ]);
     }
 
     public function getComments($postId){
