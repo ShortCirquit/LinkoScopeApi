@@ -172,6 +172,7 @@ class OrgLinkoScope implements iLinkoScope
 
     private function apiToLink($item)
     {
+        $voteList = empty($item['linkoscope_likes']) ? [] : explode(';', $item['linkoscope_likes']);
         return new Link([
             'id' => $item['id'],
             'authorId' => $item['author'],
@@ -180,8 +181,9 @@ class OrgLinkoScope implements iLinkoScope
             'title' => $item['title']['raw'],
             'url' => $item['content']['raw'],
             'score' => $item['linkoscope_score'] ?: 0,
-            'voteList' => empty($item['linkoscope_likes']) ? [] : explode(';', $item['linkoscope_likes']),
-            'votes' => empty($item['linkoscope_likes']) ? 0 : count(explode(';', $item['linkoscope_likes'])),
+            'voteList' => $voteList,
+            'votes' => count($voteList),
+            'hasVoted' => in_array($this->userId, $voteList),
             'comments' => $item['comment_count'],
         ]);
     }

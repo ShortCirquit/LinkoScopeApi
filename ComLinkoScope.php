@@ -155,6 +155,7 @@ class ComLinkoScope implements iLinkoScope
             'title' => $p['title'],
             'url' => $p['content'],
             'votes' => $p['like_count'],
+            'hasVoted' => $p['i_like'],
             'score' => $this->getMetaKeyValue($p, 'linkoscope_score'),
             'comments' => $p['discussion']['comment_count'],
         ]);
