@@ -47,31 +47,27 @@ interface iLinkoScope
 
     /**
      * @param      $id
-     * @param int|null $userId
      * @return int number of likes
      */
-    function likeLink($id, $userId = null);
+    function likeLink($id);
 
     /**
      * @param      $id
-     * @param int|null $userId
      * @return int number of likes
      */
-    function unlikeLink($id, $userId = null);
+    function unlikeLink($id);
 
     /**
      * @param      $id
-     * @param int|null $userId
      * @return int number of likes
      */
-    function likeComment($id, $userId = null);
+    function likeComment($id);
 
     /**
      * @param      $id
-     * @param int|null $userId
      * @return int number of likes
      */
-    function unlikeComment($id, $userId = null);
+    function unlikeComment($id);
 
     /**
      * @return UserProfile

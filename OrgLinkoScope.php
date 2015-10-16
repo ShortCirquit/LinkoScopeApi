@@ -20,9 +20,11 @@ class OrgLinkoScope implements iLinkoScope
     private $api;
     private $linkVoteMultiplier = 86400; //one day
     private $commentVoteMultiplier = 86400;
+    private $userId;
 
     public function __construct(Array $cfg) {
         $this->api = new OrgWpApi($cfg);
+        $this->userId = isset($cfg['userId']) ? $cfg['userId'] : null;
     }
 
     public function getConfig()
@@ -73,17 +75,17 @@ class OrgLinkoScope implements iLinkoScope
         return $this->apiToLink($result);
     }
 
-    public function likeLink($id, $userId = null)
+    public function likeLink($id)
     {
         $link = $this->getLink($id);
-        $link->voteList[] = $userId;
+        $link->voteList[] = $this->userId;
         return $this->updateLink($link)->votes;
     }
 
-    public function unlikeLink($id, $userId = null)
+    public function unlikeLink($id)
     {
         $link = $this->getLink($id);
-        $link->voteList = array_diff($link->voteList, [$userId]);
+        $link->voteList = array_diff($link->voteList, [$this->userId]);
         return $this->updateLink($link)->votes;
     }
 
@@ -141,17 +143,17 @@ class OrgLinkoScope implements iLinkoScope
         return $this->apiToComment($c);
     }
 
-    public function likeComment($id, $userId = null)
+    public function likeComment($id)
     {
         $comment = $this->getComment($id);
-        $comment->likeList[] = $userId;
+        $comment->likeList[] = $this->userId;
         return $this->updateComment($comment)->votes;
     }
 
-    public function unlikeComment($id, $userId = null)
+    public function unlikeComment($id)
     {
         $comment = $this->getComment($id);
-        $comment->likeList = array_diff_key($comment->likeList, [$userId]);
+        $comment->likeList = array_diff_key($comment->likeList, [$this->userId]);
         $comment = $this->updateComment($comment);
         return $this->updateComment($comment)->votes;
     }
