@@ -75,6 +75,12 @@ interface iLinkoScope
     function getAccount();
 
     /**
+     * @param $commentId
+     * @return Comment
+     */
+    function getComment($commentId);
+
+    /**
      * @param $postId
      * @return Comment[]
      */
@@ -85,6 +91,12 @@ interface iLinkoScope
      * @return Comment
      */
     function addComment(Comment $comment);
+
+    /**
+     * @param Comment $comment
+     * @return Comment
+     */
+    function updateComment(Comment $comment);
 
     /**
      * @param $id

@@ -61,7 +61,8 @@ class ComLinkoScope implements iLinkoScope
     public function addLink(Link $link){
         $link->score = time();
         $link->date = date(DATE_ATOM, $link->score);
-        return $this->adminApi->addPost($this->linkToApi($link));
+        $p = $this->adminApi->addPost($this->linkToApi($link));
+        return $this->apiToLink($p);
     }
 
     public function updateLink(Link $link){
@@ -70,7 +71,8 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function deleteLink($id){
-        return $this->adminApi->deletePost($id);
+        $p = $this->adminApi->deletePost($id);
+        return $this->apiToLink($p);
     }
 
     public function likeLink($id)
@@ -97,12 +99,12 @@ class ComLinkoScope implements iLinkoScope
         return $result['like_count'];
     }
 
-    private function getComment($id){
+    public function getComment($id){
         $c = $this->adminApi->getComment($id);
         return $this->apiToComment($c);
     }
 
-    private function updateComment(Comment $c){
+    public function updateComment(Comment $c){
         $c->score = strtotime($c->date) + $this->likeFactor * $c->votes;
         $this->updateToPost($c);
         return $this->adminApi->updateComment($c->id, $this->commentToApi($c));
@@ -127,8 +129,7 @@ class ComLinkoScope implements iLinkoScope
         $comment->score = time();
         $comment->date = date(DATE_ATOM, $comment->score);
         $c = $this->api->addComment($comment->postId, $this->commentToApi($comment));
-        $comment = $this->getComment($c['ID']);
-        $this->updateComment($comment);
+        return $this->apiToComment($c);
     }
 
     public function deleteComment($id)
