@@ -62,7 +62,8 @@ class OrgLinkoScope implements iLinkoScope
         $link->voteList = [];
         $link->score = time();
         $body = $this->linkToApi($link);
-        return $this->api->addCustom($this->linkEndpoint, $body);
+        $p = $this->api->addCustom($this->linkEndpoint, $body);
+        return $this->apiToLink($p);
     }
 
     public function updateLink(Link $link)
@@ -91,7 +92,8 @@ class OrgLinkoScope implements iLinkoScope
 
     public function deleteLink($id)
     {
-        return $this->api->deleteCustom($this->linkEndpoint, $id);
+        $l = $this->api->deleteCustom($this->linkEndpoint, $id);
+        return $this->apiToLink($l);
     }
 
     public function getTypes()
@@ -127,7 +129,8 @@ class OrgLinkoScope implements iLinkoScope
         $comment->votes = 0;
         $comment->score = time();
         $body = $this->commentToApi($comment);
-        return $this->api->addComment($body);
+        $c = $this->api->addComment($body);
+        return $this->apiToComment($c);
     }
 
     public function updateComment(Comment $comment)
@@ -160,7 +163,8 @@ class OrgLinkoScope implements iLinkoScope
 
     public function deleteComment($id)
     {
-        return $this->api->deleteComment($id);
+        $c = $this->api->deleteComment($id);
+        return $this->apiToComments($c);
     }
 
     private function apiToLinks($items) {
