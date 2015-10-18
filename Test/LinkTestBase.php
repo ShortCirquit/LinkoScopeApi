@@ -2,37 +2,21 @@
 /**
  * Created by PhpStorm.
  * User: Nabeel
- * Date: 2015-10-12
- * Time: 4:52 PM
+ * Date: 2015-10-18
+ * Time: 11:39 AM
  */
 
 namespace ShortCirquit\LinkoScopeApi\Test;
 
-use ShortCirquit\LinkoScopeApi\ComLinkoScope;
+use ShortCirquit\LinkoScopeApi\iLinkoScope;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 
-class ComMainTest extends \PHPUnit_Framework_TestCase
+class LinkTestBase extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var ComLinkoScope
+     * @var iLinkoScope
      */
-    private $api;
-
-    private $configTemplate = [
-        "clientId"     => "clientId",
-        "clientSecret" => "clientSecret",
-        "blogId"       => "blogId",
-        "blogUrl"      => "blogUrl",
-        "token"        => "token",
-        "adminToken"   => "token",
-    ];
-
-    public function setUp()
-    {
-        $file = __DIR__ . '/config_com.json';
-        $cfg = json_decode(file_get_contents($file), true);
-        $this->api = new ComLinkoScope($cfg);
-    }
+    protected $api;
 
     public function testCreateLink()
     {
@@ -48,7 +32,6 @@ class ComMainTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param Link $link
      * @depends testCreateLink
      */
     public function testGetLink(Link $link)
@@ -62,7 +45,6 @@ class ComMainTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param Link $link
      * @depends testGetLink
      */
     public function testDeleteLink(Link $link)
