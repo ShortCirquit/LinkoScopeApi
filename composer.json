@@ -11,7 +11,8 @@
         }
     ],
     "require": {
-        "shortcirquit/wordpress-api": "dev-master"
+        "shortcirquit/wordpress-api": "dev-master",
+        "phpunit/phpunit": "^5.0"
     },
     "autoload": {
         "psr-4": {
