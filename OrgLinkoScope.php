@@ -230,7 +230,9 @@ class OrgLinkoScope implements iLinkoScope
         return [
             'post' => $comment->postId,
             'content' => $comment->content,
+            'author' => $comment->authorId,
             'author_name' => $comment->authorName,
+            'status' => 'publish',
             'karma' =>  $comment->score,
             'linkoscope_likes' => implode(';', $comment->likeList ?: []),
         ];
