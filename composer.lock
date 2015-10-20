@@ -1001,12 +1001,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ShortCirquit/WordPressApi.git",
-                "reference": "5a9be332eb06e7836005b43c77ab6506ac68164f"
+                "reference": "7646eef1da5cf323fbff58e11d2c26da372486f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ShortCirquit/WordPressApi/zipball/5a9be332eb06e7836005b43c77ab6506ac68164f",
-                "reference": "5a9be332eb06e7836005b43c77ab6506ac68164f",
+                "url": "https://api.github.com/repos/ShortCirquit/WordPressApi/zipball/7646eef1da5cf323fbff58e11d2c26da372486f2",
+                "reference": "7646eef1da5cf323fbff58e11d2c26da372486f2",
                 "shasum": ""
             },
             "require": {
@@ -1035,7 +1035,7 @@
                 "wordpress.com",
                 "wp-api"
             ],
-            "time": "2015-10-18 18:20:11"
+            "time": "2015-10-20 04:09:11"
         },
         {
             "name": "symfony/yaml",
