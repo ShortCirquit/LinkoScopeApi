@@ -19,6 +19,7 @@ class ComLinkoScope implements iLinkoScope
     private $adminApi;
     private $likeFactor = 86400;
     private $dateOffset = 3153600000;
+    private $ctx = ['context' => 'edit'];
 
     public function __construct(Array $cfg){
         $this->api = new ComWpApi($cfg);
@@ -46,7 +47,7 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function getLinks(){
-        $result = $this->adminApi->listPosts(['number' => 100]);
+        $result = $this->api->listPosts(['number' => 100] + $this->ctx);
         if (!isset($result['posts']))
             return [];
 
@@ -54,60 +55,68 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function getLink($id){
-        $result = $this->adminApi->getPost($id);
+        $result = $this->api->getPost($id, $this->ctx);
         return $this->apiToLink($result);
     }
 
     public function addLink(Link $link){
         $link->score = time();
         $link->date = date(DATE_ATOM, $link->score);
-        $p = $this->adminApi->addPost($this->linkToApi($link));
+        $p = $this->api->addPost($this->linkToApi($link), $this->ctx);
         return $this->apiToLink($p);
     }
 
     public function updateLink(Link $link){
         $link->score = strtotime($link->date) + $this->likeFactor * $link->votes;
-        return $this->adminApi->updatePost($link->id, $this->linkToApi($link));
+        return $this->adminApi->updatePost($link->id, $this->linkToApi($link), $this->ctx);
     }
 
     public function deleteLink($id){
-        $p = $this->adminApi->deletePost($id);
+        $p = $this->api->deletePost($id, $this->ctx);
         return $this->apiToLink($p);
     }
 
     public function likeLink($id)
     {
         $result = $this->api->likePost($id);
+        $link = $this->getLink($id);
+        $this->updateLink($link);
         return $result['like_count'];
     }
 
     public function unlikeLink($id)
     {
         $result = $this->api->unlikePost($id);
+        $link = $this->getLink($id);
+        $this->updateLink($link);
         return $result['like_count'];
     }
 
     public function likeComment($id)
     {
         $result = $this->api->likeComment($id);
+        $comment = $this->getComment($id);
+        $this->updateComment($comment);
         return $result['like_count'];
     }
 
     public function unlikeComment($id)
     {
         $result = $this->api->unlikeComment($id);
+        $comment = $this->getComment($id);
+        $this->updateComment($comment);
         return $result['like_count'];
     }
 
     public function getComment($id){
-        $c = $this->adminApi->getComment($id);
+        $c = $this->api->getComment($id, $this->ctx);
         return $this->apiToComment($c);
     }
 
     public function updateComment(Comment $c){
         $c->score = strtotime($c->date) + $this->likeFactor * $c->votes;
         $this->updateToPost($c);
-        return $this->adminApi->updateComment($c->id, $this->commentToApi($c));
+        return $this->adminApi->updateComment($c->id, $this->commentToApi($c), $this->ctx);
     }
 
     public function getAccount(){
@@ -119,7 +128,7 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function getComments($postId){
-        $result = $this->adminApi->listComments($postId, ['number' => 100]);
+        $result = $this->api->listComments($postId, ['number' => 100] + $this->ctx);
         if (!isset($result['comments']))
             return [];
         return $this->apiToComments($result['comments']);
@@ -128,13 +137,14 @@ class ComLinkoScope implements iLinkoScope
     public function addComment(Comment $comment) {
         $comment->score = time();
         $comment->date = date(DATE_ATOM, $comment->score);
-        $c = $this->api->addComment($comment->postId, $this->commentToApi($comment));
+        $c = $this->api->addComment($comment->postId, $this->commentToApi($comment), $this->ctx);
+        $this->updateComment($this->apiToComment($c));
         return $this->apiToComment($c);
     }
 
     public function deleteComment($id)
     {
-        return $this->adminApi->deleteComment($id);
+        return $this->api->deleteComment($id, $this->ctx);
     }
 
     private function apiToLinks($posts)
