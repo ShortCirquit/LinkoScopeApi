@@ -31,7 +31,8 @@ class ComLinkoScope implements iLinkoScope
         } else {
             $this->adminApi = $this->api;
         }
-        $this->handler = new DefaultApiHandler($this);
+
+        $this->handler = isset($cfg['handler']) ? $cfg['handler'] : new DefaultApiHandler($this);
     }
 
     public function setHandler(iApiHandler $handler)
