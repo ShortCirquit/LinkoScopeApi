@@ -55,7 +55,7 @@ class ComLinkoScope implements iLinkoScope
         return $this->api->getToken($code);
     }
 
-    public function getLinks(){
+    public function getLinks(GetLinksRequest $request = null){
         $result = $this->api->listPosts(['number' => 100] + $this->ctx);
         if (!isset($result['posts']))
             return [];

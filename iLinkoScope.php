@@ -17,9 +17,10 @@ interface iLinkoScope
     function getConfig();
 
     /**
+     * @param $request GetLinksRequest
      * @return Link[]
      */
-    function getLinks();
+    function getLinks(GetLinksRequest $request = null);
 
     /**
      * @param $id

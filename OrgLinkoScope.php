@@ -40,7 +40,7 @@ class OrgLinkoScope implements iLinkoScope
         return $this->api->getAccessToken($token, $verifier);
     }
 
-    public function getLinks() {
+    public function getLinks(GetLinksRequest $request = null) {
         $sortParams = [
             'filter' => [
                 'meta_key' => 'linkoscope_score',
