@@ -21,6 +21,8 @@ class ComLinkoScope implements iLinkoScope
     private $dateOffset = 3153600000;
     private $ctx = ['context' => 'edit'];
 
+    private $handler;
+
     public function __construct(Array $cfg){
         $this->api = new ComWpApi($cfg);
         if (isset($cfg['adminToken'])){
@@ -29,6 +31,12 @@ class ComLinkoScope implements iLinkoScope
         } else {
             $this->adminApi = $this->api;
         }
+        $this->handler = new DefaultApiHandler($this);
+    }
+
+    public function setHandler(iApiHandler $handler)
+    {
+        $this->handler = $handler;
     }
 
     public function getConfig(){
@@ -79,32 +87,28 @@ class ComLinkoScope implements iLinkoScope
     public function likeLink($id)
     {
         $result = $this->api->likePost($id);
-        $link = $this->getLink($id);
-        $this->updateLink($link);
+        $this->handler->refreshLink($id);
         return $result['like_count'];
     }
 
     public function unlikeLink($id)
     {
         $result = $this->api->unlikePost($id);
-        $link = $this->getLink($id);
-        $this->updateLink($link);
+        $this->handler->refreshLink($id);
         return $result['like_count'];
     }
 
     public function likeComment($id)
     {
         $result = $this->api->likeComment($id);
-        $comment = $this->getComment($id);
-        $this->updateComment($comment);
+        $this->handler->refreshComment($id);
         return $result['like_count'];
     }
 
     public function unlikeComment($id)
     {
         $result = $this->api->unlikeComment($id);
-        $comment = $this->getComment($id);
-        $this->updateComment($comment);
+        $this->handler->refreshComment($id);
         return $result['like_count'];
     }
 
