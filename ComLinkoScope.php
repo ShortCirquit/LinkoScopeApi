@@ -77,7 +77,8 @@ class ComLinkoScope implements iLinkoScope
 
     public function updateLink(Link $link){
         $link->score = strtotime($link->date) + $this->likeFactor * $link->votes;
-        return $this->adminApi->updatePost($link->id, $this->linkToApi($link), $this->ctx);
+        $l = $this->adminApi->updatePost($link->id, $this->linkToApi($link), $this->ctx);
+        return $this->apiToLink($l);
     }
 
     public function deleteLink($id){
