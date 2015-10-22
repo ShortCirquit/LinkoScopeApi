@@ -8,6 +8,7 @@
 
 namespace ShortCirquit\LinkoScopeApi;
 
+use app\models\User;
 use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 use ShortCirquit\WordPressApi\ComWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
@@ -56,11 +57,23 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function getLinks(GetLinksRequest $request = null){
-        $result = $this->api->listPosts(['number' => 100] + $this->ctx);
-        if (!isset($result['posts']))
-            return [];
+        $request = $request ?: new GetLinksRequest();
+        $params = [
+            'number' => $request->maxResults,
+            'offset' => $request->offset,
+        ] + $this->ctx;
+        if($request->authorId != null)
+            $params['author'] = $request->authorId;
 
-        return ($this->apiToLinks($result['posts']));
+        $result = $this->api->listPosts($params);
+        if (!isset($result['posts']))
+            return null;
+
+        $ret = new GetLinksResult();
+        $ret->links = $this->apiToLinks($result['posts']);
+        $ret->offset = $request->offset;
+        $ret->totalResults = $result['found'];
+        return $ret;
     }
 
     public function getLink($id){
@@ -125,11 +138,24 @@ class ComLinkoScope implements iLinkoScope
         return $this->adminApi->updateComment($c->id, $this->commentToApi($c), $this->ctx);
     }
 
-    public function getAccount(){
+    public function getAccount($id = null){
+        if ($id !== null)
+            return $this->getUser($id);
+
         $user = $this->api->getSelf();
         return new UserProfile([
             'id' => $user['ID'],
             'username' => $user['display_name'],
+        ]);
+    }
+
+    private function getUser($id){
+        $u = $this->api->getUser($id);
+        return new UserProfile([
+            'id' => $u['ID'],
+            'username' => $u['login'],
+            'name' => $u['name'],
+            'url' => $u['profile_URL'],
         ]);
     }
 
