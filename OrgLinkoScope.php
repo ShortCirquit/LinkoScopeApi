@@ -41,15 +41,31 @@ class OrgLinkoScope implements iLinkoScope
     }
 
     public function getLinks(GetLinksRequest $request = null) {
+        $request = $request ?: new GetLinksRequest();
+
         $sortParams = [
             'filter' => [
                 'meta_key' => 'linkoscope_score',
                 'order' => 'DESC',
                 'orderby' => 'meta_value_num',
-        ]];
+                'posts_per_page' => $request->maxResults,
+            ],
+            'page' => ($request->offset / $request->maxResults) + 1,
+        ];
+
+        if ($request->authorId != null){
+            $sortParams['filter']['author'] = $request->authorId;
+        }
 
         $links = $this->api->listCustom($this->linkEndpoint,$sortParams);
-        return $this->apiToLinks($links);
+        $headers = $this->api->getLastHeaders();
+
+        $ret = new GetLinksResult();
+        if (preg_match('/X-WP-Total: (\d+)/', $headers, $matches) == 1)
+            $ret->totalResults = (int)$matches[1];
+        $ret->offset = $request->offset;
+        $ret->links = $this->apiToLinks($links);
+        return $ret;
     }
 
     public function getLink($id) {
@@ -101,7 +117,7 @@ class OrgLinkoScope implements iLinkoScope
         return $this->api->listTypes();
     }
 
-    public function getAccount()
+    public function getAccount($id = null)
     {
         $user = $this->api->getSelf();
         return new UserProfile([
