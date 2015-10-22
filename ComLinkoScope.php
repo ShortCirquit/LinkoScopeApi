@@ -139,18 +139,19 @@ class ComLinkoScope implements iLinkoScope
     }
 
     public function getAccount($id = null){
-        if ($id !== null)
-            return $this->getUser($id);
-
-        $user = $this->api->getSelf();
-        return new UserProfile([
-            'id' => $user['ID'],
-            'username' => $user['display_name'],
-        ]);
+        $u = ($id === null) ? $this->api->getSelf() : $this->api->getUser($id);
+        return $this->apiToUserProfile($u);
     }
 
-    private function getUser($id){
-        $u = $this->api->getUser($id);
+    public function getAccounts()
+    {
+        return array_map(
+            function($u){return $this->apiToUserProfile($u);},
+            $this->api->getUsers()
+        );
+    }
+
+    private function apiToUserProfile($u){
         return new UserProfile([
             'id' => $u['ID'],
             'username' => $u['login'],

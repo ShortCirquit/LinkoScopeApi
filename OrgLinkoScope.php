@@ -119,14 +119,16 @@ class OrgLinkoScope implements iLinkoScope
 
     public function getAccount($id = null)
     {
-        if($id == null)
-        {
-            $user = $this->api->getSelf();
-            return $this->apiToUserProfile($user['body']);
-        }
+        $u = ($id === null) ? $this->api->getSelf()['body'] : $this->api->getUser($id);
+        return $this->apiToUserProfile($u);
+    }
 
-        $user = $this->api->getUser($id);
-        return $this->apiToUserProfile($user);
+    public function getAccounts()
+    {
+        return array_map(
+            function($u){return $this->apiToUserProfile($u);},
+            $this->api->getUsers()
+        );
     }
 
     private function apiToUserProfile($u)
@@ -229,6 +231,7 @@ class OrgLinkoScope implements iLinkoScope
             'linkoscope_score' => $link->score,
             'linkoscope_likes' => implode(';', $link->voteList),
             'status' => 'publish',
+            'author' => $link->authorId,
         ];
     }
 

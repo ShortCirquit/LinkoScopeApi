@@ -76,6 +76,11 @@ interface iLinkoScope
     function getAccount($id = null);
 
     /**
+     * @return UserProfile[]
+     */
+    function getAccounts();
+
+    /**
      * @param $commentId
      * @return Comment
      */
