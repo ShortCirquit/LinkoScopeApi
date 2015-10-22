@@ -18,7 +18,7 @@ interface iLinkoScope
 
     /**
      * @param $request GetLinksRequest
-     * @return Link[]
+     * @return GetLinksResult
      */
     function getLinks(GetLinksRequest $request = null);
 
@@ -73,7 +73,7 @@ interface iLinkoScope
     /**
      * @return UserProfile
      */
-    function getAccount();
+    function getAccount($id = null);
 
     /**
      * @param $commentId
