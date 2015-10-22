@@ -12,5 +12,7 @@ namespace ShortCirquit\LinkoScopeApi\Models;
 class UserProfile extends BaseModel
 {
     public $id;
+    public $name;
     public $username;
+    public $url;
 }
