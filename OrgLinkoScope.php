@@ -119,10 +119,23 @@ class OrgLinkoScope implements iLinkoScope
 
     public function getAccount($id = null)
     {
-        $user = $this->api->getSelf();
+        if($id == null)
+        {
+            $user = $this->api->getSelf();
+            return $this->apiToUserProfile($user['body']);
+        }
+
+        $user = $this->api->getUser($id);
+        return $this->apiToUserProfile($user);
+    }
+
+    private function apiToUserProfile($u)
+    {
         return new UserProfile([
-            'id' => $user['body']['id'],
-            'username' => $user['body']['name'],
+            'id'       => $u['id'],
+            'username' => $u['name'],
+            'name' => $u['name'],
+            'url' => $u['url'],
         ]);
     }
 
