@@ -13,6 +13,7 @@ use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 use ShortCirquit\WordPressApi\ComWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
+use yii\log\Logger;
 
 class ComLinkoScope implements iLinkoScope
 {
@@ -39,12 +40,6 @@ class ComLinkoScope implements iLinkoScope
     public function setHandler(iApiHandler $handler)
     {
         $this->handler = $handler;
-    }
-
-    public function getConfig(){
-        return $this->api->getConfig() + [
-            'adminToken' => $this->adminApi->token,
-        ];
     }
 
     public function authorize(){
@@ -140,24 +135,26 @@ class ComLinkoScope implements iLinkoScope
 
     public function getAccount($id = null){
         $u = ($id === null) ? $this->api->getSelf() : $this->api->getUser($id);
-        return $this->apiToUserProfile($u);
+        return new UserProfile([
+            'id' => $u['ID'],
+            'username' => $u['username'],
+            'name' => $u['display_name'],
+            'url' => $u['profile_URL'],
+        ]);
     }
 
     public function getAccounts()
     {
         return array_map(
-            function($u){return $this->apiToUserProfile($u);},
-            $this->api->getUsers()
+            function($u){
+                return new UserProfile([
+                    'id' => $u['ID'],
+                    'username' => $u['login'],
+                    'name' => $u['nice_name'],
+                    'url' => $u['profile_URL'],
+                ]);},
+            $this->api->getUsers()['users']
         );
-    }
-
-    private function apiToUserProfile($u){
-        return new UserProfile([
-            'id' => $u['ID'],
-            'username' => $u['login'],
-            'name' => $u['name'],
-            'url' => $u['profile_URL'],
-        ]);
     }
 
     public function getComments($postId){
