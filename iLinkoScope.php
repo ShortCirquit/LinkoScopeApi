@@ -14,8 +14,6 @@ use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 
 interface iLinkoScope
 {
-    function getConfig();
-
     /**
      * @param $request GetLinksRequest
      * @return GetLinksResult

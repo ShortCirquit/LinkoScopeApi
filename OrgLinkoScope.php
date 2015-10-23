@@ -27,11 +27,6 @@ class OrgLinkoScope implements iLinkoScope
         $this->userId = isset($cfg['userId']) ? $cfg['userId'] : null;
     }
 
-    public function getConfig()
-    {
-        return $this->api->getConfig();
-    }
-
     public function authorize($returnUrl) {
         return $this->api->getAuthorizeUrl($returnUrl);
     }
