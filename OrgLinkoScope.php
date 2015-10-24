@@ -18,12 +18,21 @@ class OrgLinkoScope implements iLinkoScope
 {
     private $linkEndpoint = 'linkolink';
     private $api;
+	private $admin;
     private $linkVoteMultiplier = 86400; //one day
     private $commentVoteMultiplier = 86400;
     private $userId;
 
     public function __construct(Array $cfg) {
-        $this->api = new OrgWpApi($cfg);
+        $this->admin = $this;
+		$this->api = new OrgWpApi($cfg);
+		if (isset($cfg['adminToken'], $cfg['adminSecret'])){
+			$cfg['token'] = $cfg['adminToken'];
+			$cfg['tokenSecret'] = $cfg['adminSecret'];
+			unset($cfg['adminToken'], $cfg['adminSecret']);
+	        $this->admin = new OrgLinkoScope($cfg);
+		}
+
         $this->userId = isset($cfg['userId']) ? $cfg['userId'] : null;
     }
 
@@ -74,7 +83,8 @@ class OrgLinkoScope implements iLinkoScope
         $link->score = time();
         $body = $this->linkToApi($link);
         $p = $this->api->addCustom($this->linkEndpoint, $body);
-        return $this->apiToLink($p);
+        $link = $this->apiToLink($p);
+        return $this->admin->updateLink($link);
     }
 
     public function updateLink(Link $link)
@@ -91,14 +101,14 @@ class OrgLinkoScope implements iLinkoScope
     {
         $link = $this->getLink($id);
         $link->voteList[] = $this->userId;
-        return $this->updateLink($link)->votes;
+        return $this->admin->updateLink($link)->votes;
     }
 
     public function unlikeLink($id)
     {
         $link = $this->getLink($id);
         $link->voteList = array_diff($link->voteList, [$this->userId]);
-        return $this->updateLink($link)->votes;
+        return $this->admin->updateLink($link)->votes;
     }
 
     public function deleteLink($id)
@@ -156,7 +166,8 @@ class OrgLinkoScope implements iLinkoScope
         $comment->score = time();
         $body = $this->commentToApi($comment);
         $c = $this->api->addComment($body);
-        return $this->apiToComment($c);
+        $comment = $this->apiToComment($c);
+        return $this->admin->updateComment($comment);
     }
 
     public function updateComment(Comment $comment)
@@ -176,15 +187,14 @@ class OrgLinkoScope implements iLinkoScope
     {
         $comment = $this->getComment($id);
         $comment->likeList[] = $this->userId;
-        return $this->updateComment($comment)->votes;
+        return $this->admin->updateComment($comment)->votes;
     }
 
     public function unlikeComment($id)
     {
         $comment = $this->getComment($id);
         $comment->likeList = array_diff_key($comment->likeList, [$this->userId]);
-        $comment = $this->updateComment($comment);
-        return $this->updateComment($comment)->votes;
+        return $this->admin->updateComment($comment);
     }
 
     public function deleteComment($id)
