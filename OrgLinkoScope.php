@@ -148,7 +148,7 @@ class OrgLinkoScope implements iLinkoScope
 
     public function getComments($postId)
     {
-        $sort = ['orderby' => 'karma'];
+        $sort = ['orderby' => 'karma', 'type' => 'linkoscope_comment'];
         $results = $this->api->listComments($postId, $sort);
         return $this->apiToComments($results);
     }
@@ -272,6 +272,7 @@ class OrgLinkoScope implements iLinkoScope
             'status' => 'publish',
             'karma' =>  $comment->score,
             'linkoscope_likes' => implode(';', $comment->likeList ?: []),
+            'type' => 'linkoscope_comment',
         ];
     }
 }
