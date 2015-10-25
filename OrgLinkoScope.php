@@ -23,6 +23,15 @@ class OrgLinkoScope implements iLinkoScope
     private $commentVoteMultiplier = 86400;
     private $userId;
 
+    private function getUserId(){
+        if ($this->userId == null){
+            $user = $this->getAccount();
+            $this->userId = $user->id;
+        }
+
+        return $this->userId;
+    }
+
     public function __construct(Array $cfg) {
         $this->admin = $this;
 		$this->api = new OrgWpApi($cfg);
@@ -100,14 +109,14 @@ class OrgLinkoScope implements iLinkoScope
     public function likeLink($id)
     {
         $link = $this->getLink($id);
-        $link->voteList[] = $this->userId;
+        $link->voteList[] = $this->getUserId();
         return $this->admin->updateLink($link)->votes;
     }
 
     public function unlikeLink($id)
     {
         $link = $this->getLink($id);
-        $link->voteList = array_diff($link->voteList, [$this->userId]);
+        $link->voteList = array_diff($link->voteList, [$this->getUserId()]);
         return $this->admin->updateLink($link)->votes;
     }
 
@@ -186,14 +195,14 @@ class OrgLinkoScope implements iLinkoScope
     public function likeComment($id)
     {
         $comment = $this->getComment($id);
-        $comment->likeList[] = $this->userId;
+        $comment->likeList[] = $this->getUserId();
         return $this->admin->updateComment($comment)->votes;
     }
 
     public function unlikeComment($id)
     {
         $comment = $this->getComment($id);
-        $comment->likeList = array_diff_key($comment->likeList, [$this->userId]);
+        $comment->likeList = array_diff_key($comment->likeList, [$this->getUserId()]);
         return $this->admin->updateComment($comment);
     }
 
@@ -223,7 +232,7 @@ class OrgLinkoScope implements iLinkoScope
             'score' => $item['linkoscope_score'] ?: 0,
             'voteList' => $voteList,
             'votes' => count($voteList),
-            'hasVoted' => in_array($this->userId, $voteList),
+            'hasVoted' => in_array($this->getUserId(), $voteList),
             'comments' => $item['comment_count'],
         ]);
     }
@@ -255,7 +264,7 @@ class OrgLinkoScope implements iLinkoScope
             'postId' => $c['post'],
             'content' => $c['content']['raw'],
             'votes' => count($likeList),
-            'hasVoted' => in_array($this->userId, $likeList),
+            'hasVoted' => in_array($this->getUserId(), $likeList),
             'likeList' => $likeList,
             'score' => $c['karma'],
             'authorId' => $c['author'],
