@@ -8,12 +8,10 @@
 
 namespace ShortCirquit\LinkoScopeApi;
 
-use app\models\User;
 use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 use ShortCirquit\WordPressApi\ComWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
-use yii\log\Logger;
 
 class ComLinkoScope implements iLinkoScope
 {
