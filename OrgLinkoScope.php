@@ -24,7 +24,7 @@ class OrgLinkoScope implements iLinkoScope
     private $userId;
 
     private function getUserId(){
-        if ($this->userId == null){
+        if ($this->api->token != null && $this->userId == null){
             $user = $this->getAccount();
             $this->userId = $user->id;
         }
