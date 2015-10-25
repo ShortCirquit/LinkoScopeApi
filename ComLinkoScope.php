@@ -161,6 +161,7 @@ class ComLinkoScope implements iLinkoScope
             'name' => $u['display_name'],
             'url' => $u['profile_URL'],
             'blogId' => isset($u['token_site_id']) ? $u['token_site_id'] : null,
+            'roles' => $this->adminApi->getUser($u['ID'])['roles'],
         ]);
     }
 
