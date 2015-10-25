@@ -54,4 +54,27 @@ class LinkTestBase extends \PHPUnit_Framework_TestCase
         $this->assertEquals($link->id, $ret->id);
         $this->assertEquals($link->title, $ret->title);
     }
+
+    public function testLikeLink()
+    {
+        $link = new Link();
+        $link->title = "Like Link Test";
+        $link->url = 'http://like.com/';
+        $link = $this->api->addLink($link);
+
+        $this->assertNotNull($link);
+        $this->assertNotNull($link->id);
+        $this->assertNotNull($link->score);
+        $this->assertEquals(0, $link->votes);
+
+        $this->assertEquals(1, $this->api->likeLink($link->id));
+        $update = $this->api->getLink($link->id);
+        $this->assertEquals(1, $update->votes);
+        $this->assertGreaterThan($link->score, $update->score);
+
+        $this->assertEquals(0, $this->api->unlikeLink($link->id));
+        $update = $this->api->getLink($link->id);
+        $this->assertEquals(0, $update->votes);
+        $this->assertEquals($link->score, $update->score);
+    }
 }
