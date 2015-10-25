@@ -59,7 +59,7 @@ class ComLinkoScope implements iLinkoScope
         if($request->authorId != null)
             $params['author'] = $request->authorId;
 
-        $result = $this->adminApi->listPosts($params);
+        $result = $this->api->listPosts($params);
         if (!isset($result['posts']))
             return null;
 
