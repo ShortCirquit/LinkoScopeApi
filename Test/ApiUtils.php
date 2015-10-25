@@ -27,16 +27,20 @@ class ApiUtils
      *
      * @return ComLinkoScope
      */
-    public static function getComApi(){
+    public static function getComApi()
+    {
         $cfg = json_decode(file_get_contents(ApiUtils::$file), true);
+
         return new ComLinkoScope($cfg['com']);
     }
 
     /**
      * @return OrgLinkoScope
      */
-    public static function getOrgApi(){
+    public static function getOrgApi()
+    {
         $cfg = json_decode(file_get_contents(ApiUtils::$file), true);
+
         return new OrgLinkoScope($cfg['org']);
     }
 }

@@ -12,5 +12,6 @@ namespace ShortCirquit\LinkoScopeApi;
 interface iApiHandler
 {
     function refreshLink($id);
+
     function refreshComment($id);
 }
