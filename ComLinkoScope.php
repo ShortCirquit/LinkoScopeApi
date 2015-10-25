@@ -19,11 +19,13 @@ class ComLinkoScope implements iLinkoScope
 {
     private $api;
     private $adminApi;
+    /** @var  iApiHandler */
+    private $handler;
+
     private $likeFactor = 86400;
     private $dateOffset = 3153600000;
     private $ctx = ['context' => 'edit'];
 
-    private $handler;
 
     public function __construct(Array $cfg){
         $this->api = new ComWpApi($cfg);
@@ -32,8 +34,6 @@ class ComLinkoScope implements iLinkoScope
             $cfg['token'] = $cfg['adminToken'];
             $this->adminApi = new ComWpApi($cfg);
         }
-
-        $this->handler = isset($cfg['handler']) ? $cfg['handler'] : new DefaultApiHandler($this);
     }
 
     public function setHandler(iApiHandler $handler)
@@ -96,29 +96,50 @@ class ComLinkoScope implements iLinkoScope
     public function likeLink($id)
     {
         $result = $this->api->likePost($id);
-        $this->handler->refreshLink($id);
+        $this->refreshLink($id);
         return $result['like_count'];
     }
 
     public function unlikeLink($id)
     {
         $result = $this->api->unlikePost($id);
-        $this->handler->refreshLink($id);
+        $this->refreshLink($id);
         return $result['like_count'];
+    }
+
+    private function refreshLink($id)
+    {
+        if ($this->handler != null)
+        {
+            $this->handler->refreshLink($id);
+        }
+
+        $this->updateLink($this->getLink($id));
     }
 
     public function likeComment($id)
     {
         $result = $this->api->likeComment($id);
-        $this->handler->refreshComment($id);
+        $this->refreshComment($id);
         return $result['like_count'];
     }
 
     public function unlikeComment($id)
     {
         $result = $this->api->unlikeComment($id);
-        $this->handler->refreshComment($id);
+        $this->refreshComment($id);
         return $result['like_count'];
+    }
+
+    private function refreshComment($id)
+    {
+        if ($this->handler != null)
+        {
+            $this->handler->refreshComment($id);
+            return;
+        }
+
+        $this->updateComment($this->getComment($id));
     }
 
     public function getComment($id){
