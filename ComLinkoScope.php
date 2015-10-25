@@ -27,11 +27,10 @@ class ComLinkoScope implements iLinkoScope
 
     public function __construct(Array $cfg){
         $this->api = new ComWpApi($cfg);
+        $this->adminApi = $this->api;
         if (isset($cfg['adminToken'])){
             $cfg['token'] = $cfg['adminToken'];
             $this->adminApi = new ComWpApi($cfg);
-        } else {
-            $this->adminApi = $this->api;
         }
 
         $this->handler = isset($cfg['handler']) ? $cfg['handler'] : new DefaultApiHandler($this);
@@ -60,7 +59,7 @@ class ComLinkoScope implements iLinkoScope
         if($request->authorId != null)
             $params['author'] = $request->authorId;
 
-        $result = $this->api->listPosts($params);
+        $result = $this->adminApi->listPosts($params);
         if (!isset($result['posts']))
             return null;
 
