@@ -15,4 +15,5 @@ class UserProfile extends BaseModel
     public $name;
     public $username;
     public $url;
+    public $blogId;
 }
