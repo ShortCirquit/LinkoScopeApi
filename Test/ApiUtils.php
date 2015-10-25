@@ -20,23 +20,23 @@ use ShortCirquit\LinkoScopeApi\OrgLinkoScope;
  */
 class ApiUtils
 {
+    private static $file = __DIR__ . '/config.json';
+
     /**
      * Create ComWpApi instance
      *
      * @return ComLinkoScope
      */
     public static function getComApi(){
-        $file = __DIR__ . '/config_com.json';
-        $cfg = json_decode(file_get_contents($file), true);
-        return new ComLinkoScope($cfg);
+        $cfg = json_decode(file_get_contents(ApiUtils::$file), true);
+        return new ComLinkoScope($cfg['com']);
     }
 
     /**
      * @return OrgLinkoScope
      */
     public static function getOrgApi(){
-        $file = __DIR__ . '/config_org.json';
-        $cfg = json_decode(file_get_contents($file), true);
-        return new OrgLinkoScope($cfg);
+        $cfg = json_decode(file_get_contents(ApiUtils::$file), true);
+        return new OrgLinkoScope($cfg['org']);
     }
 }
