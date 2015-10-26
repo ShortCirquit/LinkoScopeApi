@@ -186,6 +186,12 @@ class ComLinkoScope implements iLinkoScope
     {
         $u = ($id === null) ? $this->api->getSelf() : $this->api->getUser($id);
 
+        if (!isset($u['username']))
+        {
+            $u['username'] = $u['login'];
+            $u['display_name'] = $u['nice_name'];
+        }
+
         return new UserProfile(
             [
                 'id'       => $u['ID'],
