@@ -13,6 +13,7 @@ use ShortCirquit\LinkoScopeApi\Models\UserProfile;
 use ShortCirquit\WordPressApi\OrgWpApi;
 use ShortCirquit\LinkoScopeApi\Models\Link;
 use ShortCirquit\LinkoScopeApi\Models\Comment;
+use yii\log\Logger;
 
 class OrgLinkoScope implements iLinkoScope
 {
@@ -151,8 +152,8 @@ class OrgLinkoScope implements iLinkoScope
 
     public function getAccount($id = null)
     {
-        $u = ($id === null) ? $this->api->getSelf()['body'] : $this->api->getUser($id);
-
+        $id = $id ?: $this->api->getSelf()['body']['id'];
+        $u = $this->admin->api->getUser($id);
         return $this->apiToUserProfile($u);
     }
 
@@ -171,17 +172,33 @@ class OrgLinkoScope implements iLinkoScope
                 'id'       => $u['id'],
                 'username' => $u['name'],
                 'name'     => $u['name'],
-                'url'      => $u['url'],
+                'url'      => $u['link'],
             ]
         );
     }
 
-    public function getComments($postId)
+    public function getComments(GetCommentsRequest $request = null)
     {
-        $sort = ['orderby' => 'karma', 'type' => 'linkoscope_comment'];
-        $results = $this->api->listComments($postId, $sort);
+        $request = $request ?: new GetCommentsRequest();
+        $sort = [
+            'orderby' => 'karma',
+            'type' => 'linkoscope_comment',
+            'page' => ($request->offset / $request->maxResults) + 1,
+            'per_page' => $request->maxResults,
 
-        return $this->apiToComments($results);
+        ];
+        $results = $this->api->listComments($request->linkId, $sort);
+
+        $ret = new GetCommentsResult();
+        $ret->comments = $this->apiToComments($results);
+        $ret->offset = $request->offset;
+        $headers = $this->api->getLastHeaders();
+        if (preg_match('/X-WP-Total: (\d+)/', $headers, $matches) == 1)
+        {
+            $ret->totalResults = (int)$matches[1];
+        }
+
+        return $ret;
     }
 
     public function getComment($id)

@@ -71,7 +71,7 @@ class ComLinkoScope implements iLinkoScope
         $result = $this->api->listPosts($params);
         if ( ! isset($result['posts']))
         {
-            return null;
+            return [];
         }
 
         $ret = new GetLinksResult();
@@ -224,15 +224,26 @@ class ComLinkoScope implements iLinkoScope
         );
     }
 
-    public function getComments($postId)
+    public function getComments(GetCommentsRequest $request = null)
     {
-        $result = $this->api->listComments($postId, ['number' => 100] + $this->ctx);
+        $request = $request ?: new GetCommentsRequest();
+        $params = [
+                'number' => $request->maxResults,
+                'offset' => $request->offset,
+            ] + $this->ctx;
+
+        $result = $this->api->listComments($request->linkId, $params);
         if ( ! isset($result['comments']))
         {
             return [];
         }
 
-        return $this->apiToComments($result['comments']);
+        $ret = new GetCommentsResult();
+        $ret->comments = $this->apiToComments($result['comments']);
+        $ret->offset = $request->offset;
+        $ret->totalResults = $result['found'];
+
+        return $ret;
     }
 
     public function addComment(Comment $comment)

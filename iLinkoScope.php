@@ -85,10 +85,10 @@ interface iLinkoScope
     function getComment($commentId);
 
     /**
-     * @param $postId
-     * @return Comment[]
+     * @param GetCommentsRequest $request
+     * @return GetCommentsResult
      */
-    function getComments($postId);
+    function getComments(GetCommentsRequest $request = null);
 
     /**
      * @param Comment $comment
