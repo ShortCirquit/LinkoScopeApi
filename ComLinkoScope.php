@@ -184,22 +184,19 @@ class ComLinkoScope implements iLinkoScope
 
     public function getAccount($id = null)
     {
-        $u = ($id === null) ? $this->api->getSelf() : $this->api->getUser($id);
-
-        if (!isset($u['username']))
-        {
-            $u['username'] = $u['login'];
-            $u['display_name'] = $u['nice_name'];
-        }
+        $self = $this->api->getSelf();
+        $id = $self['ID'];
+        $siteId = isset($self['token_site_id']) ? $self['token_site_id'] : null;
+        $u = $this->adminApi->getUser($id);
 
         return new UserProfile(
             [
                 'id'       => $u['ID'],
-                'username' => $u['username'],
-                'name'     => $u['display_name'],
+                'username' => $u['login'],
+                'name'     => $u['nice_name'],
                 'url'      => $u['profile_URL'],
-                'blogId'   => isset($u['token_site_id']) ? $u['token_site_id'] : null,
-                'roles'    => $this->adminApi->getUser($u['ID'])['roles'],
+                'blogId'   => $siteId,
+                'roles'    => $u['roles'],
             ]
         );
     }
