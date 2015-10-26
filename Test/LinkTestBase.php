@@ -77,4 +77,19 @@ class LinkTestBase extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $update->votes);
         $this->assertEquals($link->score, $update->score);
     }
+
+    public function testGetAccounts()
+    {
+        $accounts = $this->api->getAccounts();
+        $this->assertNotNull($accounts);
+        $this->assertGreaterThanOrEqual(2, count($accounts),
+            'We need at least two different accounts for this test to work.');
+
+        $acc1 = $this->api->getAccount($accounts[0]->id);
+        $this->assertNotNull($acc1);
+
+        $self = $this->api->getAccount();
+        $acc2 = $this->api->getAccount($self->id);
+        $this->assertEquals($self->id, $acc2->id);
+    }
 }
