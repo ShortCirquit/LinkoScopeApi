@@ -34,6 +34,11 @@ class ComLinkoScope implements iLinkoScope
             $cfg['token'] = $cfg['adminToken'];
             $this->adminApi = new ComWpApi($cfg);
         }
+
+        if (isset($cfg['handler']))
+        {
+            $this->handler = $cfg['handler'];
+        }
     }
 
     public function setHandler(iApiHandler $handler)
