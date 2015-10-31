@@ -107,4 +107,10 @@ interface iLinkoScope
      * @return Comment
      */
     function deleteComment($id);
+
+    function listTags();
+
+    function addTag($name);
+
+    function deleteTag($id);
 }
