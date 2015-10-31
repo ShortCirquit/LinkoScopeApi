@@ -165,6 +165,23 @@ class OrgLinkoScope implements iLinkoScope
         );
     }
 
+    public function listTags(){
+        $result = [];
+        foreach ($this->api->listAllTags() as $tag){
+            $result[$tag['id']] = $tag['name'];
+        }
+    }
+
+    public function addTag($name){
+        $res = $this->api->addTag($name);
+        return $res['id'];
+    }
+
+    public function deleteTag($id){
+        $this->api->deleteTag($id);
+        return true;
+    }
+
     private function apiToUserProfile($u)
     {
         return new UserProfile(
