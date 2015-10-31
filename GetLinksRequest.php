@@ -16,4 +16,5 @@ class GetLinksRequest
     public $offset = 0;
     public $sortDirection = 'desc';
     public $sortBy = 'score';
+    public $tags = [];
 }
