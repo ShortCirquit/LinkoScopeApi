@@ -15,4 +15,5 @@ class Link extends BaseModel
     public $voteList;
     public $comments;
     public $score;
+    public $tags = [1 => 'tag1', 2 => 'tag2'];
 }
