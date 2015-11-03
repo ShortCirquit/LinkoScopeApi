@@ -261,6 +261,25 @@ class ComLinkoScope implements iLinkoScope
         return $this->api->deleteComment($id, $this->ctx);
     }
 
+    public function listTags(){
+        $result = $this->api->listAllTags();
+        $tags = [];
+        foreach ($result['tags'] as $r){
+            $tags[$r['slug']] = $r['name'];
+        }
+        return $tags;
+    }
+
+    public function addTag($name){
+        $tag = $this->api->addTag($name);
+        return $tag['slug'];
+    }
+
+    public function deleteTag($id){
+        $this->api->deleteTag($id);
+        return true;
+    }
+
     private function apiToLinks($posts)
     {
         $result = [];
