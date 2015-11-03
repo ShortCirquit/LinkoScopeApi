@@ -79,6 +79,11 @@ class OrgLinkoScope implements iLinkoScope
             $sortParams['filter']['author'] = $request->authorId;
         }
 
+        if ($request->tags != null && count($request->tags) > 0)
+        {
+            $sortParams['filter']['tag_id'] = join(',', $request->tags);
+        }
+
         $links = $this->api->listCustom($this->linkEndpoint, $sortParams);
         $headers = $this->api->getLastHeaders();
 
@@ -165,23 +170,6 @@ class OrgLinkoScope implements iLinkoScope
         );
     }
 
-    public function listTags(){
-        $result = [];
-        foreach ($this->api->listAllTags() as $tag){
-            $result[$tag['id']] = $tag['name'];
-        }
-    }
-
-    public function addTag($name){
-        $res = $this->api->addTag($name);
-        return $res['id'];
-    }
-
-    public function deleteTag($id){
-        $this->api->deleteTag($id);
-        return true;
-    }
-
     private function apiToUserProfile($u)
     {
         return new UserProfile(
@@ -192,6 +180,24 @@ class OrgLinkoScope implements iLinkoScope
                 'url'      => $u['link'],
             ]
         );
+    }
+
+    public function listTags(){
+        $result = [];
+        foreach ($this->api->listAllTags() as $tag){
+            $result[$tag['id']] = $tag['name'];
+        }
+        return $result;
+    }
+
+    public function addTag($name){
+        $res = $this->api->addTag($name);
+        return $res['id'];
+    }
+
+    public function deleteTag($id){
+        $this->api->deleteTag($id);
+        return true;
     }
 
     public function getComments(GetCommentsRequest $request = null)
@@ -305,6 +311,7 @@ class OrgLinkoScope implements iLinkoScope
                 'votes'      => count($voteList),
                 'hasVoted'   => in_array($this->getUserId(), $voteList),
                 'comments'   => $item['comment_count'],
+                'tags'       => $item['tags'],
             ]
         );
     }
@@ -318,6 +325,7 @@ class OrgLinkoScope implements iLinkoScope
             'linkoscope_likes' => implode(';', $link->voteList),
             'status'           => 'publish',
             'author'           => $link->authorId,
+            'tags'             => $link->tags,
         ];
     }
 
