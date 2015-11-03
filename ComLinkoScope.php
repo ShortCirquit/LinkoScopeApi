@@ -68,6 +68,11 @@ class ComLinkoScope implements iLinkoScope
             $params['author'] = $request->authorId;
         }
 
+        if ($request->tags != null && count($request->tags) > 0)
+        {
+            $params['tag'] = join(',', $request->tags);
+        }
+
         $result = $this->api->listPosts($params);
         if ( ! isset($result['posts']))
         {
@@ -293,6 +298,12 @@ class ComLinkoScope implements iLinkoScope
 
     private function apiToLink($p)
     {
+        $tags = [];
+        foreach ($p['tags'] as $tag)
+        {
+            $tags[$tag['slug']] = $tag['name'];
+        }
+
         return new Link(
             [
                 'id'         => $p['ID'],
@@ -305,6 +316,7 @@ class ComLinkoScope implements iLinkoScope
                 'hasVoted'   => $p['i_like'],
                 'score'      => $this->getMetaKeyValue($p, 'linkoscope_score'),
                 'comments'   => $p['discussion']['comment_count'],
+                'tags'       => $tags,
             ]
         );
     }
@@ -317,6 +329,17 @@ class ComLinkoScope implements iLinkoScope
             'status'  => 'publish',
             'author'  => $link->authorId,
         ];
+
+        $tags = [];
+        foreach ($link->tags as $k => $v)
+        {
+            $tags[] = $k;
+        }
+
+        if (count($tags) > 0)
+        {
+            $val['tags'] = join(',', $tags);
+        }
 
         $val = $this->setMetaKey($val, 'linkoscope_created', strtotime($link->date));
         $val = $this->setMetaKey($val, 'linkoscope_score', $link->score);
